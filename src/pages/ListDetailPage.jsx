@@ -90,7 +90,6 @@ export default function ListDetailPage() {
 
     return (
         <div className="page">
-            { }
             <div className="header">
                 <button onClick={handleBack}>← Zpět</button>
 
@@ -151,7 +150,6 @@ export default function ListDetailPage() {
                 />
             </section>
 
-            {/* Členové */}
             <section className="section">
                 <h3>Členové</h3>
                 <table className="table">
