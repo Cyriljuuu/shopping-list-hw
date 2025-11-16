@@ -1,0 +1,106 @@
+.page {
+    max-width: 880px;
+    margin: 24px auto 80px;
+    padding: 0 16px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+.header {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.header-actions button {
+    margin-left: 8px;
+}
+
+button {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: pointer;
+}
+
+button.danger {
+    border-color: #e33;
+    color: #e33;
+}
+
+button.link {
+    border: none;
+    color: #06c;
+    background: none;
+    cursor: pointer;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.title h1 {
+    font-size: 22px;
+    margin: 0;
+}
+
+.title-edit input {
+    padding: 6px 8px;
+}
+
+.section {
+    margin-top: 24px;
+}
+
+.section h3 {
+    margin: 12px 0;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.table th,
+.table td {
+    border: 1px solid #ddd;
+    padding: 8px 10px;
+    text-align: left;
+}
+
+.table thead th {
+    background: #f6f6f6;
+}
+
+.muted {
+    color: #777;
+}
+
+.row {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+}
+
+.row input {
+    flex: 1;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+}
+
+.toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.note {
+    margin-top: 24px;
+    color: #666;
+    font-size: 14px;
+}
