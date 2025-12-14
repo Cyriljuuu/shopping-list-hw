@@ -1,13 +1,31 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { lists as initialLists, CURRENT_USER_ID } from "../data";
+import { CURRENT_USER_ID } from "../data";
+import { api } from "../api";
 import "../styles/listOverview.css";
 
 export default function ListOverviewPage() {
-  const [lists, setLists] = useState(initialLists);
+  const [lists, setLists] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("active");
   const [newTitle, setNewTitle] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const data = await api.getLists();
+        setLists(Array.isArray(data) ? data : []);
+      } catch (e) {
+        console.error("Failed to load lists:", e);
+        setLists([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
 
   const visibleLists = useMemo(() => {
     if (filter === "active") return lists.filter((l) => l.status === "active");
@@ -19,29 +37,27 @@ export default function ListOverviewPage() {
   const activeCount = lists.filter((l) => l.status === "active").length;
   const archivedCount = lists.filter((l) => l.status === "archived").length;
 
-  const handleOpen = (id) => {
-    navigate(`/lists/${id}`);
-  };
+  const handleOpen = (id) => navigate(`/lists/${id}`);
 
-  const handleCreate = (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
     const title = newTitle.trim();
     if (!title) return;
 
-    const newList = {
-      id: String(Date.now()),
-      title,
-      status: "active",
-      ownerId: CURRENT_USER_ID,
-      items: [],
-      members: [{ id: CURRENT_USER_ID, name: "Jan Novák", role: "owner" }],
-    };
-
-    setLists((prev) => [...prev, newList]);
-    setNewTitle("");
+    try {
+      const created = await api.createList({ title });
+      if (created) setLists((prev) => [...prev, created]);
+      else {
+        const data = await api.getLists();
+        setLists(Array.isArray(data) ? data : []);
+      }
+      setNewTitle("");
+    } catch (e) {
+      console.error("Create failed:", e);
+    }
   };
 
-  const handleDelete = (listId) => {
+  const handleDelete = async (listId) => {
     const list = lists.find((l) => l.id === listId);
     if (!list) return;
     if (list.ownerId !== CURRENT_USER_ID) return;
@@ -49,8 +65,15 @@ export default function ListOverviewPage() {
     const ok = window.confirm(`Opravdu chcete smazat seznam "${list.title}"?`);
     if (!ok) return;
 
-    setLists((prev) => prev.filter((l) => l.id !== listId));
+    try {
+      await api.deleteList(listId);
+      setLists((prev) => prev.filter((l) => l.id !== listId));
+    } catch (e) {
+      console.error("Delete failed:", e);
+    }
   };
+
+  if (loading) return <p>Načítám seznamy…</p>;
 
   return (
     <div className="page list-overview-container">
@@ -85,16 +108,18 @@ export default function ListOverviewPage() {
       <section className="list-grid">
         {visibleLists.map((list) => {
           const isOwner = list.ownerId === CURRENT_USER_ID;
-          const resolvedCount = list.items.filter((i) => i.resolved).length;
+          const items = Array.isArray(list.items) ? list.items : [];
+          const members = Array.isArray(list.members) ? list.members : [];
+          const resolvedCount = items.filter((i) => i.resolved).length;
 
           return (
             <article key={list.id} className={`list-tile ${list.status}`}>
               <h2>{list.title}</h2>
 
               <p>
-                Položky: {resolvedCount}/{list.items.length}
+                Položky: {resolvedCount}/{items.length}
               </p>
-              <p>Členové: {list.members.length}</p>
+              <p>Členové: {members.length}</p>
               <p className="list-status">
                 Stav: {list.status === "archived" ? "archivovaný" : "aktivní"}
               </p>
